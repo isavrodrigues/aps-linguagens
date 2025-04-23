@@ -310,9 +310,10 @@ let pointsSystem = {
 ### Fontes Oficiais
 As especificações técnicas da linguagem são baseadas em regulamentos e dados reais da F1:
 
-#### Aerodinâmica
+
 > "As equipes usam o máximo de downforce em Monaco, com ângulos de asa 30% maiores que em outros circuitos"  
-> **FIA Technical Report Monaco GP 2023**  
+> **FIA Technical Report Monaco GP 2023**
+ 
 [Relatório Completo](https://www.fia.com/regulation/category/110)
 - Capítulo 3: Aerodinâmica
 -  Capítulo 5: Unidade de Potência
