@@ -167,7 +167,6 @@ suspension {
     front: soft;    // Máxima aderência nas curvas de baixa velocidade
     rear: medium;   // Estabilidade na saída de curvas
     rideHeight: 35mm; // Maior altura para absorver irregularidades
-    camber: -3.8°;  // Ângulo acentuado para melhor contato do pneu
 }
 ```
 
