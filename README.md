@@ -104,7 +104,6 @@
 |------------------|---------|----------------------------------|--------------|
 | **Rigidez**      | soft/medium/hard | soft=mais aderência       | medium       |
 | **Altura**       | 25-35mm | Baixa=melhor aerodinâmica        | 30mm         |
-| **Camber**       | -2.5° a -4.5° | Negativo=mais grip em curvas | -3.5°        |
 
 ### Motor e ERS
 | Parâmetro        | Opções          | Uso Típico                     | Qualy Setup |
