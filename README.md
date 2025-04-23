@@ -313,21 +313,11 @@ As especificações técnicas da linguagem são baseadas em regulamentos e dados
 #### Aerodinâmica
 > "As equipes usam o máximo de downforce em Monaco, com ângulos de asa 30% maiores que em outros circuitos"  
 > **FIA Technical Report Monaco GP 2023**  
-> [Relatório Completo](https://www.fia.com/regulation/category/110)
->Capítulo 3: Aerodinâmica
-> Capítulo 5: Unidade de Potência
-> Anexo 6: Especificações de Pneus
+[Relatório Completo](https://www.fia.com/regulation/category/110)
+- Capítulo 3: Aerodinâmica
+-  Capítulo 5: Unidade de Potência
+- Anexo 6: Especificações de Pneus
 
-#### Pneus
-| Composto | Faixa de Temperatura | Vida Útil |
-|----------|----------------------|-----------|
-| Soft     | 100-115°C            | 15-20 voltas |
-| Medium   | 95-110°C             | 25-35 voltas |  
-**Fonte:** [Pirelli F1 Tire Guide 2024](https://www.pirelli.com/tyres/en-ww/motorsport/f1)
 
-#### Documentação Técnica das Equipes
-> Red Bull Racing: Desenvolvimento do carro
-> Mercedes AMG: Configurações de corrida
-> [Documentação Técnica das Equipes](https://www.redbullracing.com/int-en/car-development)
 
 
