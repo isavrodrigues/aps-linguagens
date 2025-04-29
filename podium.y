@@ -3,188 +3,110 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Protótipos para evitar declarações implícitas */
+int yylex(void);
 void yyerror(const char *s);
-int yylex();
+%}
 
-/* fazer o union, typedef */ 
+%union {
+    int num;
+    char *id;
+    char *str;
+}
 
+%token <id> IDENTIFIER
+%token <num> NUMBER
+%token <str> STRING
 
+%token GREENLIGHT CHEQUEREDFLAG DRIVER TEAM IFPIT ELSEPIT FORLAP WHILESC PITSTOP PUSHLAP RADIO MIN MAX ADDPOINT
+%token LE GE EQ NE DOTDOT OR AND
 
-/* Tokens */
-%token SEASON_OPENING SEASON_FINALE
-%token REGULATIONS CONSTRUCTORS DRIVERS SETUP
-%token LET BE SETS TEAM_RADIO IF_YELLOW_FLAG ELSE_PIT_LANE WHILE_SAFETY_CAR
-%token ADJUST CALL_PIT_STOP RADIO_TO DEPLOY ISSUE_PENALTY
-%token AERO ENGINE CHASSIS BUDGET FRONT_WING REAR_WING DIFFUSER SUSPENSION MODE ERS TIRES CURRENT STINTS
-%token TIRE_COMPOUND ENGINE_MODE ERS_MODE SAFETY_CAR_TYPE
-%token DATE TIME NUMBER BUDGET_VALUE IDENTIFIER
-%token PLUS MINUS TIMES DIVIDE EQUALS GT LT EQ NE GE LE OVERTAKES LOSES_TO
-
-/* Types */
-%type <node> program season_section regulations constructors drivers setup commands
-%type <node> command declaration assignment print conditional loop
-%type <node> telemetry_command strategy_command engineer_command race_control_command
-%type <node> expression condition term factor
-%type <node> constructor_list driver_list setup_sections
-%type <node> adjustment_type penalty_type
-
-%start program
+%left OR
+%left AND
+%left '>' '<' LE GE EQ NE
+%left '+' '-'
+%left '*' '/'
 
 %%
 
-program: 
-    SEASON_OPENING season_section SEASON_FINALE
-    { 
-        printf("Programa Podium validado com sucesso!\n");
-        $$ = $2;
-    }
+program:
+    GREENLIGHT stmtList CHEQUEREDFLAG
     ;
 
-
-
-regulation_items:
-    engine_mode_rules
-    | tire_rules
-    | drs_rules
-    | pit_stop_rules
-    | regulation_items regulation_items
+stmtList:
+    /* empty */
+    | stmtList statement
     ;
 
-
-tire_settings:
-    "compounds" tire_list ';'
-    | "mandatory" tire_requirement ';'
-    | "minPitStops" NUMBER ';'
-    ;
-
-
-drs_settings:
-    "activationLap" NUMBER ';'
-    | "zones" ID NUMBER ';'
-    | "detectionPoints" zone_list ';'
-    ;
-
-
-setup_sections:
-    aero_setup
-    | suspension_setup
-    | engine_setup
-    | tire_setup
-    | setup_sections setup_sections
-    ;
-
-
-aero_settings:
-    "frontWing" NUMBER ';'
-    | "rearWing" NUMBER ';'
-    | "diffuser" NUMBER ';'
-    | "brakeDucts" ID ';'
-    ;
-
-suspension_settings:
-    "front" ID ';'
-    | "rear" ID ';'
-    | "rideHeight" NUMBER "mm" ';'
-    | "camber" NUMBER '°' ';'
-    ;
-
-
-engine_settings:
-    "mode" ID ';'
-    | "ERS" ID ';'
-    | "fuelMix" ID ';'
-    ;
-
-
-tire_settings:
-    "current" ID ';'
-    | "pressures" '{' pressure_settings '}'
-    | "stints" stint_list ';'
-    ;
-
-pressure_settings:
-    "front" NUMBER "psi" ';'
-    | "rear" NUMBER "psi" ';'
-    ;
-
-
-command:
+statement:
     declaration
-    | assignment
-    | print
+    | assignment ';'
     | conditional
     | loop
-    | telemetry_command
-    | strategy_command
-    | engineer_command
-    | race_control_command
+    | command ';'
     ;
 
-
-adjustment_type:
-    "frontWing"
-    | "rearWing"
-    | "diffuser"
-    | "brakeBias"
-    | "ERS"
+declaration:
+    DRIVER IDENTIFIER ';'
+    | TEAM IDENTIFIER '[' IDENTIFIER ',' IDENTIFIER ']' ';'
+    | IDENTIFIER ':' IDENTIFIER ';'
     ;
 
-
-
-penalty_type:
-    "time" NUMBER
-    | "grid" NUMBER
-    | "driveThrough"
-    | "stopGo"
+assignment:
+    IDENTIFIER '=' expr
     ;
 
-expression:
-    term
-    | expression PLUS term
-    | expression MINUS term
+expr:
+      expr '+' expr
+    | expr '-' expr
+    | expr '*' expr
+    | expr '/' expr
+    | MIN '(' expr ',' expr ')'
+    | MAX '(' expr ',' expr ')'
+    | '(' expr ')'
+    | NUMBER
+    | IDENTIFIER
     ;
 
-term:
-    factor
-    | term TIMES factor
-    | term DIVIDE factor
-    ;
-
-factor:
-    NUMBER
-    | ID
-    | '(' expression ')'
-    | "getPoints" '(' ID ')'
-    | "getTeamPoints" '(' ID ')'
+conditional:
+      IFPIT '(' condition ')' block
+    | IFPIT '(' condition ')' block ELSEPIT block
     ;
 
 condition:
-    expression REL_OP expression
+      condition OR condition
+    | condition AND condition
+    | expr '>' expr
+    | expr '<' expr
+    | expr EQ expr
+    | expr NE expr
+    | expr LE expr
+    | expr GE expr
     ;
 
-REL_OP:
-    GT
-    | LT
-    | EQ
-    | NE
-    | GE
-    | LE
-    | OVERTAKES
-    | LOSES_TO
+loop:
+      FORLAP '(' expr DOTDOT expr ')' block
+    | WHILESC '(' condition ')' block
     ;
 
-TYPE:
-    "int"
-    | "float"
-    | "string"
-    | "bool"
-    | "driver"
-    | "team"
-    | "track"
-    | "tire"
-    | "engineMode"
-    | "aeroConfig"
+command:
+      PITSTOP
+    | PUSHLAP
+    | RADIO '(' STRING ')'
+    | RADIO '(' expr ')'
+    | ADDPOINT '(' IDENTIFIER ',' expr ')'
     ;
 
+block:
+    '{' stmtList '}'
+    ;
 
+%%
+
+int main(void) {
+    return yyparse();
+}
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
 }

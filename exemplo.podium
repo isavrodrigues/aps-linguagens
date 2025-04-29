@@ -1,0 +1,46 @@
+greenLight
+  // Pilotos e equipes
+  driver MaxV;
+  driver ChecoP;
+  team RedBull[MaxV,ChecoP];
+
+  // Variáveis de corrida
+  fuelLoad : int;
+  tyreWear : int;
+  bestLap  : lapTime;
+  sector1  : lapTime;
+  sector2  : lapTime;
+  sector3  : lapTime;
+
+  fuelLoad = 100;
+  tyreWear = 0;
+  bestLap  = 999;
+
+  // Simula 58 voltas
+  raceLaps : int;
+  raceLaps = 58;
+  forLap (1..raceLaps) {
+    // calcular volta
+    bestLap = min(bestLap, sector1 + sector2 + sector3);
+    // desgaste e consumo
+    tyreWear = tyreWear + 3;
+    fuelLoad = fuelLoad - 2;
+
+    // pontuações
+    addPoint(MaxV,25);
+    addPoint(ChecoP,18);
+
+    // pit stop
+    ifPit(tyreWear > 60 || fuelLoad < 20) {
+      pitStop();
+      tyreWear = 0;
+      fuelLoad = fuelLoad + 50;
+      radio("Pit done");
+    }
+  }
+
+  // Pontuação de construtores
+  // teamPoints(RedBull) = driverPoints(MaxV) + driverPoints(ChecoP)
+
+chequeredFlag
+
