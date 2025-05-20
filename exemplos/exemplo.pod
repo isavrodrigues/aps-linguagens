@@ -1,0 +1,66 @@
+greenLight
+  // Registro de pilotos e equipes
+  driver MaxV;
+  driver ChecoP;
+  team RedBull[MaxV,ChecoP];
+  
+  driver LewisH;
+  driver GeorgeR;
+  team Mercedes[LewisH,GeorgeR];
+
+  // Variáveis de corrida
+  fuelLoad : int;
+  tyreWear : int;
+  raceLaps : int;
+  safetycar : bool;
+  
+  // Inicialização
+  fuelLoad = 100;
+  tyreWear = 0;
+  raceLaps = 5;
+  safetycar = false;
+  
+  // Tempos de volta
+  sector1 : lapTime;
+  sector2 : lapTime;
+  sector3 : lapTime;
+  bestLap : lapTime;
+  
+  sector1 = 28000;
+  sector2 = 32000;
+  sector3 = 30000;
+  bestLap = 999999;
+  
+  // Simulação de corrida
+  forLap(1..raceLaps) {
+    // Cálculo do melhor tempo
+    bestLap = min(bestLap, sector1 + sector2 + sector3);
+    
+    // Desgaste e consumo
+    tyreWear = tyreWear + 3;
+    fuelLoad = fuelLoad - 2;
+    
+    // Safety car aleatório (simulado)
+    ifPit(tyreWear > 20 && !safetycar) {
+      safetycar = true;
+      radio("Safety car deployed!");
+    }
+    
+    // Pontuações
+    addPoint(MaxV, 25);
+    addPoint(ChecoP, 18);
+    addPoint(LewisH, 15);
+    addPoint(GeorgeR, 12);
+    
+    // Pit stop estratégico
+    ifPit(tyreWear > 15) {
+      pitStop();
+      tyreWear = 0;
+      fuelLoad = fuelLoad + 50;
+      radio("Box box box - pit stop complete");
+    } elsePit {
+      pushLap();
+      radio("Push now, push now");
+    }
+  }
+chequeredFlag

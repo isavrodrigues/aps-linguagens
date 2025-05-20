@@ -1,0 +1,83 @@
+greenLight
+  // Declaração de pilotos para demonstração de Safety Car
+  driver MaxV;
+  driver LewisH;
+  driver CharlesL;
+  driver LandoN;
+  
+  // Equipes
+  team RedBull[MaxV,LandoN];  // Equipes misturadas para este exemplo
+  team Mercedes[LewisH,CharlesL];
+  
+  // Variáveis de corrida
+  raceLaps : int = 12;
+  safetyCarDeployed : bool = false;
+  safetyCarLaps : int = 0;
+  accidentProne : bool = true;
+  
+  // Variáveis de estratégia
+  tyreWear : int = 0;
+  fuelLoad : int = 100;
+  gap : int = 15;  // Intervalo entre carros (em segundos)
+  
+  // Tempos de volta
+  standardLapTime : lapTime = 90000;  // 1m30s
+  scLapTime : lapTime = 120000;       // 2m00s (mais lento sob SC)
+  
+  radio("Largada limpa, todos os carros sem incidentes na primeira curva!");
+  
+  forLap(1..raceLaps) {
+    // Desgaste normal
+    tyreWear = tyreWear + 3;
+    fuelLoad = fuelLoad - 2;
+    
+    // Verificar condições para Safety Car
+    ifPit(accidentProne && !safetyCarDeployed && tyreWear > 20) {
+      safetyCarDeployed = true;
+      safetyCarLaps = 3;  // SC ficará por 3 voltas
+      radio("SAFETY CAR DEPLOYED! Acidente na curva 3!");
+      
+      // Reduzir gaps entre carros durante SC
+      gap = 3;
+    }
+    
+    // Loop para período de Safety Car
+    whileSC(safetyCarDeployed) {
+      // Economia sob Safety Car
+      fuelLoad = fuelLoad + 1;   // Menos consumo
+      tyreWear = tyreWear + 1;   // Menos desgaste
+      
+      // Decisões estratégicas sob SC
+      ifPit(safetyCarLaps == 3) {
+        radio("Oportunidade de pit stop sob Safety Car - delta de tempo reduzido!");
+        pitStop();
+        tyreWear = 0;
+      }
+      
+      safetyCarLaps = safetyCarLaps - 1;
+      
+      // Verificar se o Safety Car já pode entrar
+      ifPit(safetyCarLaps <= 0) {
+        safetyCarDeployed = false;
+        radio("Safety car entrando nesta volta, prepare-se para a relargada!");
+        
+        // Adicionar pontos para simular liderança após SC
+        addPoint(MaxV, 5);    // Bom em relargadas
+        addPoint(LewisH, 3);  // Experiência em SCs
+        addPoint(CharlesL, 2);
+        addPoint(LandoN, 1);
+      }
+    }
+    
+    // Após Safety Car, chance de push lap
+    ifPit(!safetyCarDeployed && tyreWear < 15) {
+      pushLap();
+      radio("Push agora para abrir gap após o Safety Car!");
+      
+      // Aumentar gap após o Push
+      gap = gap + 2;
+    }
+  }
+  
+  radio("Bandeira quadriculada! Corrida concluída com Safety Car influenciando a estratégia!");
+chequeredFlag

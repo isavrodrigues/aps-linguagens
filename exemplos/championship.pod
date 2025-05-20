@@ -1,0 +1,81 @@
+greenLight
+  // Declaração de pilotos
+  driver MaxV;
+  driver ChecoP;
+  driver LewisH;
+  driver GeorgeR;
+  driver CharlesL;
+  driver CarlosS;
+  
+  // Declaração de equipes
+  team RedBull[MaxV,ChecoP];
+  team Mercedes[LewisH,GeorgeR];
+  team Ferrari[CharlesL,CarlosS];
+  
+  // Variáveis para o campeonato
+  races : int = 5;         // Número de corridas na temporada
+  currentRace : int = 1;   // Corrida atual
+  
+  // Pontuação inicial para todos os pilotos
+  points : int = 0;
+  
+  // Simulação do campeonato
+  forLap(1..races) {
+    // Anunciar corrida atual
+    radio("Iniciando corrida");
+    
+    // Sorte da corrida (simulada com valores fixos aqui)
+    raceResult : int = currentRace;
+    
+    // Distribuir pontos baseado no resultado da corrida
+    ifPit(raceResult == 1) {
+      // RedBull vitória
+      addPoint(MaxV, 25);
+      addPoint(ChecoP, 15);
+      addPoint(LewisH, 12);
+      addPoint(GeorgeR, 10);
+      addPoint(CharlesL, 8);
+      addPoint(CarlosS, 6);
+      radio("Vitória da Red Bull!");
+    }
+    
+    ifPit(raceResult == 2) {
+      // Mercedes vitória
+      addPoint(LewisH, 25);
+      addPoint(GeorgeR, 18);
+      addPoint(MaxV, 15);
+      addPoint(ChecoP, 10);
+      addPoint(CharlesL, 8);
+      addPoint(CarlosS, 6);
+      radio("Vitória da Mercedes!");
+    }
+    
+    ifPit(raceResult == 3) {
+      // Ferrari vitória
+      addPoint(CharlesL, 25);
+      addPoint(CarlosS, 18);
+      addPoint(MaxV, 15);
+      addPoint(LewisH, 12);
+      addPoint(GeorgeR, 10);
+      addPoint(ChecoP, 8);
+      radio("Vitória da Ferrari!");
+    }
+    
+    ifPit(raceResult > 3) {
+      // Resultados mistos para outras corridas
+      addPoint(MaxV, 18);
+      addPoint(LewisH, 25);
+      addPoint(CharlesL, 15);
+      addPoint(ChecoP, 12);
+      addPoint(GeorgeR, 10);
+      addPoint(CarlosS, 8);
+      radio("Resultado surpreendente!");
+    }
+    
+    // Incrementar contador de corrida
+    currentRace = currentRace + 1;
+    radio("Fim da corrida");
+  }
+  
+  // Exibir resultados finais aparecerão automaticamente
+chequeredFlag

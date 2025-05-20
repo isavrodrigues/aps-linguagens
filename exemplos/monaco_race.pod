@@ -1,0 +1,73 @@
+greenLight
+  // Declaração de Pilotos para Monaco GP
+  driver MaxV;
+  driver ChecoP;
+  driver LewisH;
+  driver CharlesL;
+  
+  // Configuração do circuito de Monaco
+  team RedBull[MaxV,ChecoP];
+  team Ferrari[CharlesL,LewisH];  // Lewis 'emprestado' para este exemplo
+  
+  // Configurações especiais para Monaco
+  downforce : int = 9;  // Alto downforce para curvas lentas (escala 1-10)
+  lapCount : int = 10;  // Número de voltas (reduzido para o exemplo)
+  
+  // Tempos de setores típicos de Monaco (em ms)
+  sector1 : lapTime = 18000;  // 18 segundos
+  sector2 : lapTime = 36000;  // 36 segundos
+  sector3 : lapTime = 24000;  // 24 segundos
+  bestLap : lapTime = 99999;  // Inicializar com valor alto
+  
+  // Variáveis de estratégia
+  tyreWear : int = 0;
+  fuelLoad : int = 100;
+  pitstopDone : bool = false;
+  
+  // Características específicas de Monaco
+  overtakingDifficult : bool = true;
+  tightCorners : bool = true;
+  
+  // Simulação da corrida
+  radio("Luzes apagadas no circuito de Monaco!");
+  
+  forLap(1..lapCount) {
+    // Desgaste maior em Monaco devido às curvas
+    tyreWear = tyreWear + 4;
+    fuelLoad = fuelLoad - 1;
+    
+    // Cálculo do tempo de volta
+    currentLap : lapTime = sector1 + sector2 + sector3;
+    bestLap = min(bestLap, currentLap);
+    
+    // Monaco é difícil para ultrapassagens, então estratégias são importantes
+    ifPit(tyreWear > 30 && !pitstopDone) {
+      radio("Entrada nos boxes em Monaco - muito cuidado na pit lane estreita!");
+      pitStop();
+      tyreWear = 0;
+      pitstopDone = true;
+      
+      // Perda de posição devido à dificuldade do circuito
+      ifPit(overtakingDifficult) {
+        radio("Difícil recuperar posições em Monaco!");
+      }
+    } 
+    
+    // Push nos túneis quando possível
+    ifPit(tyreWear < 20 && fuelLoad > 30) {
+      pushLap();
+      radio("Push no túnel de Monaco!");
+      // Redução de tempo simulada
+      sector2 = sector2 - 500;
+    }
+    
+    // Adição de pontos simulada para os líderes
+    ifPit(currentLap < 80000) {
+      addPoint(CharlesL, 2);  // Bônus para 'poleman' local
+    } elsePit {
+      addPoint(MaxV, 2);      // Red Bull forte em setores técnicos
+    }
+  }
+  
+  radio("Fim da corrida em Monaco - Celebrações no pódio real!");
+chequeredFlag

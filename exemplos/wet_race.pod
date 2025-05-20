@@ -1,0 +1,113 @@
+greenLight
+  // Pilotos - alguns são especialmente fortes na chuva
+  driver MaxV;       // Forte na chuva
+  driver LewisH;     // Forte na chuva
+  driver SergioP;
+  driver GeorgeR;
+  
+  // Equipes
+  team RedBull[MaxV,SergioP];
+  team Mercedes[LewisH,GeorgeR];
+  
+  // Configurações de corrida molhada
+  wetTrack : bool = true;
+  raceLaps : int = 8;
+  rainIntensity : int = 5;    // Escala 1-10
+  dryingLine : bool = false;  // Linha seca se formando?
+  
+  // Variáveis de desempenho e estratégia
+  tyreType : int = 1;         // 1=chuva extrema, 2=intermediário, 3=slick
+  tyreWear : int = 0;
+  fuelLoad : int = 100;
+  aquaplaning : bool = false;
+  
+  // Tempos de volta (afetados pelo clima)
+  sector1 : lapTime = 35000;  // Base para setor 1
+  sector2 : lapTime = 40000;  // Base para setor 2
+  sector3 : lapTime = 30000;  // Base para setor 3
+  bestLap : lapTime = 999999;
+  
+  radio("Luzes apagadas! Largada sob chuva forte!");
+  
+  forLap(1..raceLaps) {
+    // Mudança gradual nas condições
+    ifPit(rainIntensity > 0) {
+      rainIntensity = rainIntensity - 1;
+      radio("A chuva está diminuindo...");
+    }
+    
+    // Formação de linha seca
+    ifPit(rainIntensity < 3 && !dryingLine) {
+      dryingLine = true;
+      radio("Linha seca começando a se formar!");
+    }
+    
+    // Risco de aquaplaning com pneus inadequados
+    ifPit(rainIntensity > 3 && tyreType == 3) {
+      aquaplaning = true;
+      radio("PERIGO! Aquaplaning com pneus slick na chuva!");
+      
+      // Penalizar tempos de volta
+      sector1 = sector1 * 2;
+      sector2 = sector2 * 2;
+    } elsePit {
+      aquaplaning = false;
+    }
+    
+    // Efeito das condições nos tempos de setor
+    weatherEffect : int = rainIntensity * 500;  // 500ms por nível de chuva
+    sector1 = sector1 + weatherEffect;
+    sector2 = sector2 + weatherEffect;
+    sector3 = sector3 + weatherEffect;
+    
+    // Vantagem para pilotos fortes na chuva
+    ifPit(wetTrack) {
+      addPoint(MaxV, 3);
+      addPoint(LewisH, 3);
+      radio("Os especialistas em chuva estão se destacando!");
+    }
+    
+    // Estratégia de pneus
+    ifPit(dryingLine && tyreType == 1) {
+      radio("Pista secando, considerando mudança para intermediários");
+      pitStop();
+      tyreType = 2;  // Mudar para intermediários
+      tyreWear = 0;
+      
+      // Melhoria nos tempos com pneus adequados
+      sector1 = sector1 - 5000;
+      sector2 = sector2 - 5000;
+      sector3 = sector3 - 5000;
+    }
+    
+    // Tática agressiva - slicks cedo demais?
+    ifPit(rainIntensity < 2 && tyreType == 2 && dryingLine) {
+      radio("Estratégia arriscada: entrando para pneus slick?");
+      
+      // 50/50 risco - simulado com valor fixo
+      takeRisk : bool = true;
+      
+      ifPit(takeRisk) {
+        pitStop();
+        tyreType = 3;  // Slicks
+        tyreWear = 0;
+        radio("Apostando em slicks cedo! Pode dar grande vantagem ou desastre!");
+      }
+    }
+    
+    // Cálculo e registro do tempo de volta
+    currentLap : lapTime = sector1 + sector2 + sector3;
+    bestLap = min(bestLap, currentLap);
+    
+    // Desgaste normal
+    tyreWear = tyreWear + 2;
+    fuelLoad = fuelLoad - 1;
+    
+    // Uso de modo de ataque quando possível
+    ifPit(!aquaplaning && tyreWear < 10) {
+      pushLap();
+    }
+  }
+  
+  radio("Bandeira quadriculada! Corrida emocionante sob condições variáveis de chuva!");
+chequeredFlag

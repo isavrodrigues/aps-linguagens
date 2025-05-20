@@ -91,6 +91,13 @@ Letter        ::= "a" ... "z" | "A" ... "Z"
 
 ---
 
+## Flex e Bison
+
+A linguagem foi implementada usando Flex e Bison:
+
+- **Flex** gera o analisador léxico, que identifica tokens como variáveis, números e comandos.
+- **Bison** gera o analisador sintático, que interpreta a estrutura do programa baseada na gramática.
+
 ## Explicações
 
 - **`forLap(1..N)`**  
@@ -115,52 +122,147 @@ Letter        ::= "a" ... "z" | "A" ... "Z"
 
 ```  
 greenLight
-  // Pilotos e equipes
+  // Registro de pilotos e equipes
   driver MaxV;
   driver ChecoP;
   team RedBull[MaxV,ChecoP];
+  
+  driver LewisH;
+  driver GeorgeR;
+  team Mercedes[LewisH,GeorgeR];
 
   // Variáveis de corrida
   fuelLoad : int;
   tyreWear : int;
-  bestLap  : lapTime;
-  sector1  : lapTime;
-  sector2  : lapTime;
-  sector3  : lapTime;
-
+  raceLaps : int;
+  safetycar : bool;
+  
+  // Inicialização
   fuelLoad = 100;
   tyreWear = 0;
-  bestLap  = 999;
-
-  // Simula 58 voltas
-  raceLaps : int;
-  raceLaps = 58;
-  forLap (1..raceLaps) {
-    // calcular volta
+  raceLaps = 5;
+  safetycar = false;
+  
+  // Tempos de volta
+  sector1 : lapTime;
+  sector2 : lapTime;
+  sector3 : lapTime;
+  bestLap : lapTime;
+  
+  sector1 = 28000;
+  sector2 = 32000;
+  sector3 = 30000;
+  bestLap = 999999;
+  
+  // Simulação de corrida
+  forLap(1..raceLaps) {
+    // Cálculo do melhor tempo
     bestLap = min(bestLap, sector1 + sector2 + sector3);
-    // desgaste e consumo
+    
+    // Desgaste e consumo
     tyreWear = tyreWear + 3;
     fuelLoad = fuelLoad - 2;
-
-    // pontuações
-    addPoint(MaxV,25);
-    addPoint(ChecoP,18);
-
-    // pit stop
-    ifPit(tyreWear > 60 || fuelLoad < 20) {
+    
+    // Safety car aleatório (simulado)
+    ifPit(tyreWear > 20 && !safetycar) {
+      safetycar = true;
+      radio("Safety car deployed!");
+    }
+    
+    // Pontuações
+    addPoint(MaxV, 25);
+    addPoint(ChecoP, 18);
+    addPoint(LewisH, 15);
+    addPoint(GeorgeR, 12);
+    
+    // Pit stop estratégico
+    ifPit(tyreWear > 15) {
       pitStop();
       tyreWear = 0;
       fuelLoad = fuelLoad + 50;
-      radio("Pit done");
+      radio("Box box box - pit stop complete");
+    } elsePit {
+      pushLap();
+      radio("Push now, push now");
     }
   }
-
-  // Pontuação de construtores
-  // teamPoints(RedBull) = driverPoints(MaxV) + driverPoints(ChecoP)
-
 chequeredFlag
 ```
 
+
+
+## Estrutura do Repositório
+
+```
+APS-Linguagens/
+├── .vscode/             # Configurações do VS Code
+├── exemplos/            # Scripts de exemplo (.pod)
+│   ├── championship.pod
+│   ├── exemplo.pod
+│   ├── monaco_race.pod
+│   ├── safety_car.pod
+│   └── wet_race.pod
+├── slides/              # Apresentação em PDF
+│   └── podium.pdf
+├── src/                 # Código-fonte e build
+│   ├── podium.l         # Flex (scanner)
+│   ├── podium.y         # Bison (parser)
+│   ├── lex.yy.c         # Scanner gerado
+│   ├── lex.yy.o         # Objeto do scanner
+│   ├── podium.tab.c     # Parser gerado
+│   ├── podium.tab.h     # Cabeçalhos do parser
+│   ├── podium.tab.o     # Objeto do parser
+│   ├── podium_ast.h     # Definição da AST
+│   ├── podium_ast.c     # Construção/manipulação da AST
+│   ├── podium_ast.o     # Objeto da AST
+│   ├── podium_llvm.h    # Interface de simulação LLVM
+│   ├── podium_llvm.c    # Implementação de simulação LLVM
+│   ├── podium_llvm.o    # Objeto de simulação LLVM
+│   ├── main.c           # Ponto de entrada (fonte)
+│   ├── main.o           # Objeto do main
+│   └── podium           # Executável
+├── .gitignore           # Arquivo de exclusões
+└── README.md            # Documento principal
+```
+
+
+
+## Como Compilar (MACOS)
+
+No diretório `src/`, execute:
+
+```bash
+flex podium.l
+bison -d podium.y
+
+clang -c lex.yy.c
+
+clang -c podium.tab.c
+
+clang -c podium_ast.c
+
+clang -c podium_llvm.c
+
+clang -c main.c
+
+clang -o podium main.o lex.yy.o podium.tab.o podium_ast.o podium_llvm.o
+```
+
+Isso gera o executável `src/podium`.
+
+## Como Executar
+
+Dentro de `src/`, rode:
+
+```bash
+./podium ../exemplos/championship.pod
+```
+
+Ou qualquer outro script em `exemplos/`.
+
+
+## Apresentação
+Em `slides/podium.pdf` está a apresentação com Motivação, Características e Exemplo.
 
 
 ## Fontes e Referências Técnicas
@@ -190,14 +292,8 @@ As especificações técnicas da linguagem são baseadas em regulamentos e dados
   - Pressões de pneus otimizadas
 
 
-## Flex e Bison
 
-A linguagem foi implementada usando Flex e Bison:
 
-- **Flex** gera o analisador léxico, que identifica tokens como variáveis, números e comandos.
-- **Bison** gera o analisador sintático, que interpreta a estrutura do programa baseada na gramática.
-
-o Flex apresenta alguns erros no reconhecimento de tokens, principalmente em comentários e strings.
 
 
 
